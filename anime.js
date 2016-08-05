@@ -505,11 +505,19 @@
         if (transforms) {
             if (!transform) transform = (getCSSValue(document.body, transformStr) ? '' : '-webkit-') + transformStr;
 
-
+            //TODO in order for this to work from a translate3d string, still need to derrive the value
+            // loop through transforms  to prep strings
             for (var t in transforms) {
+
+                // setup our xyz array to store all values
                 var xyz = [null,null,null];
+
+                // loop through the transform values
                 var mods = transforms[t];
                 for(var i in mods){
+
+                    // need to figure out ordering on the off hand chance we don't get values in order,
+                    // this way we can get the right xyz order
                     var index = 0;
                     if(mods[i].search("X") !== -1){
                         index = 0;
@@ -519,18 +527,24 @@
                         index = 2;
                     }
 
+                    // extract the value for the coordinate
                     var value = mods[i].split("(")[1].replace(")","");
 
+                    // set xyz array
                     xyz[index] = value;
                 }
 
+                //loop through and account for values that aren't set
                 for(var i in xyz){
                     if(xyz[i] === null){
                         xyz[i] = "0px";
                     }
                 }
 
+                // build transform string
                 var transformValueString = xyz.join(",");
+
+                // set transform string
                 anim.animatables[t].target.style[transform] = 'translate3d(' + transformValueString + ")";
                 //anim.animatables[t].target.style[transform] = transforms[t].join(' ');
             }
@@ -543,6 +557,7 @@
     var createAnimation = function(params) {
         var anim = {};
 
+    
 
         anim.animatables = getAnimatables(params.targets);
         anim.settings = mergeObjects(params, defaultSettings);
